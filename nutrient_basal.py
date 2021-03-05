@@ -17,6 +17,8 @@ v_mu, v_std = 2.3, 0
 angleLow, angleHigh = 0.5, 0.5 
 white_angle_mu, white_angle_std = 0, 0.4
 reversal = [8.6]
+nutrient_range = 10
+initx, inity = 50, 50
 
 # %%
 model = MyxoModel(x=x_ini, y=y_ini, N=N, width=width, height=height, v_mu=v_mu, 
@@ -24,15 +26,25 @@ model = MyxoModel(x=x_ini, y=y_ini, N=N, width=width, height=height, v_mu=v_mu,
                     white_angle_std=white_angle_std, reversal = reversal, clock=0, dt=dt, initx=50,
                     inity=50, nutrient_range =10, OPTION =1)
 
-for i in range(6000):
-    model.step()
-
+res  = [] 
+for j in range(50):
+    for i in range(6000):
+        model.step()
+    agent_pos = model.datacollector.get_model_vars_dataframe()
+    agent_counts = agent_pos.iloc[-1]['Nutrient']
+    res_ = (2*nutrient_range)**2 - np.sum(agent_counts[initx-nutrient_range:initx+nutrient_range, \
+        inity-nutrient_range:inity+nutrient_range])
+    res.append(res_)
 # %% 
 agent_pos = model.datacollector.get_model_vars_dataframe()
 agent_pos.head()
-# %%
+# # %%
 from matplotlib import pyplot as plt
 agent_counts = agent_pos.iloc[-1]['Nutrient']
 fig = plt.imshow(agent_counts, interpolation = 'nearest')
 plt.colorbar()
+
+# %%
+(2*nutrient_range)**2 - np.sum(agent_counts[initx-nutrient_range:initx+nutrient_range, \
+        inity-nutrient_range:inity+nutrient_range])
 # %%
